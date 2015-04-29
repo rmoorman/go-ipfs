@@ -79,6 +79,10 @@ var (
 	// daemon, `ipfs config` tries to save work by not building the
 	// full IpfsNode, but accessing the Repo directly.
 	onlyOne repo.OnlyOne
+
+	// reposCreated counts FSRepos created, to keep their metrics at
+	// unique paths. Guarded by packageLock.
+	reposCreated uint
 )
 
 // FSRepo represents an IPFS FileSystem Repo. It is safe for use by multiple
@@ -330,14 +334,21 @@ func (r *FSRepo) openDatastore() error {
 		return errors.New("unable to open flatfs datastore")
 	}
 
+	// called must hold packageLock
+	reposCreated++
+	seqStr := ""
+	if reposCreated > 1 {
+		seqStr = strconv.FormatUint(uint64(reposCreated), 10)
+	}
+	prefix := "datastore" + seqStr
 	mountDS := mount.New([]mount.Mount{
 		{
 			Prefix:    ds.NewKey("/blocks"),
-			Datastore: measure.New("datastore.blocks", blocksDS),
+			Datastore: measure.New(prefix+".blocks", blocksDS),
 		},
 		{
 			Prefix:    ds.NewKey("/"),
-			Datastore: measure.New("datastore.leveldb", r.leveldbDS),
+			Datastore: measure.New(prefix+".leveldb", r.leveldbDS),
 		},
 	})
 	// Make sure it's ok to claim the virtual datastore from mount as
