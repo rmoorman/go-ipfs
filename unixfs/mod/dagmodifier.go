@@ -126,7 +126,6 @@ func (dm *DagModifier) Write(b []byte) (int, error) {
 	}
 	if dm.wrBuf == nil {
 		dm.wrBuf = new(bytes.Buffer)
-		dm.writeStart = dm.curWrOff
 	}
 
 	n, err := dm.wrBuf.Write(b)
