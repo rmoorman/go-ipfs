@@ -170,7 +170,7 @@
 		},
 		{
 			"ImportPath": "github.com/jbenet/go-datastore",
-			"Rev": "2525cae416316b9cf2eb66ec8d4792f567436efa"
+			"Rev": "4c8dd48a94c881f1ed56d82e26130d5c27d11724"
 		},
 		{
 			"ImportPath": "github.com/jbenet/go-detect-race",
