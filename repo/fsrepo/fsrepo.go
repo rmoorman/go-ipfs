@@ -13,6 +13,7 @@ import (
 	ds "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/jbenet/go-datastore"
 	"github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/jbenet/go-datastore/flatfs"
 	levelds "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/jbenet/go-datastore/leveldb"
+	"github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/jbenet/go-datastore/measure"
 	"github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/jbenet/go-datastore/mount"
 	ldbopts "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/opt"
 	repo "github.com/ipfs/go-ipfs/repo"
@@ -330,8 +331,14 @@ func (r *FSRepo) openDatastore() error {
 	}
 
 	mountDS := mount.New([]mount.Mount{
-		{Prefix: ds.NewKey("/blocks"), Datastore: blocksDS},
-		{Prefix: ds.NewKey("/"), Datastore: r.leveldbDS},
+		{
+			Prefix:    ds.NewKey("/blocks"),
+			Datastore: measure.New("datastore.blocks", blocksDS),
+		},
+		{
+			Prefix:    ds.NewKey("/"),
+			Datastore: measure.New("datastore.leveldb", r.leveldbDS),
+		},
 	})
 	// Make sure it's ok to claim the virtual datastore from mount as
 	// threadsafe. There's no clean way to make mount itself provide
